@@ -1,5 +1,7 @@
 import { createElement } from '../helpers/dom-helper.mjs';
 
+let inputValue = '';
+
 const showInputModal = ({ title, onChange = () => {}, onSubmit = () => {} }) => {
     const rootElement = document.querySelector('#root');
 
@@ -20,9 +22,12 @@ const showInputModal = ({ title, onChange = () => {}, onSubmit = () => {} }) => 
 
     submitButton.addEventListener('click', () => {
         modalElement.remove();
-        onSubmit();
+        onSubmit(inputValue);
     });
-    inputElement.addEventListener('change', e => onChange(e.target.value));
+    inputElement.addEventListener('change', e => {
+        inputValue = e.target.value;
+        onChange(e.target.value);
+    });
 };
 
 const showResultsModal = ({ usersSortedArray, onClose = () => {} }) => {

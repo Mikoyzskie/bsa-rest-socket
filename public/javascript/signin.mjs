@@ -1,3 +1,5 @@
+import { showMessageModal } from './views/modal.mjs';
+
 const username = sessionStorage.getItem('username');
 
 if (username) {
@@ -9,25 +11,29 @@ const input = document.getElementById('username-input');
 
 const getInputValue = () => input.value;
 
-const returnHome = () => {
-    sessionStorage.removeItem('username');
-    window.location.replace('/signin');
-};
-
-const onClose = () => {
-    showMessageModal({ message: 'User already existed', onClose: returnHome });
-};
-
 const onClickSubmitButton = () => {
     const inputValue = getInputValue();
     if (!inputValue) {
         return;
     }
-    if (inputValue === username) {
-        socket.on('username_exists', onClose);
-    }
-    sessionStorage.setItem('username', inputValue);
-    window.location.replace('/game');
+
+    const socket = io('', { query: { inputValue } });
+
+    socket.emit('USERNAME_CHECK', inputValue);
+
+    socket.on('USER_ALREADY_EXISTS', name => {
+        showMessageModal({
+            message: 'User already exists',
+            onClose: () => {
+                window.location.replace('/signin');
+            }
+        });
+    });
+
+    socket.on('USER_CREATED', () => {
+        sessionStorage.setItem('username', inputValue);
+        window.location.replace('/game');
+    });
 };
 
 const onKeyUp = ev => {
