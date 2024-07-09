@@ -70,11 +70,9 @@ export default (io: Server) => {
         io.emit('UPDATE_ROOMS', rooms);
 
         socket.on('CREATE_ROOM', roomname => {
-            console.log(roomname);
-
             const sameNameCheck = rooms.find(room => room.name === roomname);
             if (sameNameCheck) {
-                socket.emit('UNAVAILABLE_ROOMNAME');
+                socket.emit('ROOM_EXISTS');
             } else {
                 rooms.push({ name: roomname, users: [] });
 
@@ -161,7 +159,7 @@ export default (io: Server) => {
             });
         });
 
-        socket.on('USER_FINISHED_GAME', ({ percent, username, roomname, timeLefted }) => {
+        socket.on('USER_DONE', ({ percent, username, roomname, timeLefted }) => {
             const roomIndex = rooms.findIndex(room => room.name === roomname);
             const userIndex = rooms[roomIndex].users.findIndex(user => user.name === username);
 
